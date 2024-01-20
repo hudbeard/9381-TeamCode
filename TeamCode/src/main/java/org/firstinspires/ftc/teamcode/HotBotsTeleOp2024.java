@@ -48,10 +48,10 @@ public class HotBotsTeleOp2024 extends LinearOpMode {
                 robot.claw_rotate.setPosition(.5);
             }
             if (gamepad2.x) {
-                robot.airplane.setPosition(0);
+                robot.airplane.setPosition(0.9);
             }
             if (gamepad2.y) {
-                robot.airplane.setPosition(0.4);
+                robot.airplane.setPosition(0.5);
             }
             if (gamepad1.dpad_up) {
                 robot.moveLiftingArm((int) (0-lifting_arm_pos), 5);

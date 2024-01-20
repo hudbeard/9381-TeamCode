@@ -70,7 +70,7 @@ public class HotBotsRobot2024 {
 
         front_left.setDirection(DcMotorSimple.Direction.REVERSE);
         back_left.setDirection(DcMotorSimple.Direction.REVERSE);
-        lifting_arm_2.setDirection(DcMotorSimple.Direction.REVERSE);
+        lifting_arm_2.setDirection(DcMotorSimple.Direction.FORWARD);
 
         front_left .setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         front_right.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
