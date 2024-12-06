@@ -22,14 +22,16 @@ public class HotBotsRobot2024 {
     public DcMotorEx front_left;
     public DcMotorEx back_right;
     public DcMotorEx back_left;
-    public DcMotor pixel_arm;
-    public DcMotor lifting_arm;
-    public DcMotor lifting_arm_2;
-    public DcMotor liner_actuator;
-    public Servo airplane;
-    public Servo claw_rotate;
-    public Servo claw_right;
-    public Servo claw_left;
+    public DcMotor slide_1;
+    public DcMotor hook_1;
+    public DcMotor hook_2;
+    public DcMotor slide_2;
+    public Servo slide_3;
+    public Servo claw_2;
+    public Servo rotate_2;
+    public Servo rotate_1;
+    public Servo claw_1;
+    public Servo light_1;
     HardwareMap hwMap;
     Telemetry telemetry;
     Gamepad GamePad1;
@@ -59,18 +61,22 @@ public class HotBotsRobot2024 {
         front_left     = hwMap.get(DcMotorEx.class,        "FL");
         back_right     = hwMap.get(DcMotorEx.class,        "BR");
         back_left      = hwMap.get(DcMotorEx.class,        "BL");
-        pixel_arm      = hwMap.get(DcMotor.class,        "PARM");
-        lifting_arm    = hwMap.get(DcMotor.class,        "LARM");
-        lifting_arm_2  = hwMap.get(DcMotor.class,        "LARM2");
-        liner_actuator = hwMap.get(DcMotor.class,        "LINA");
-        airplane       = hwMap.get(Servo.class,          "E2");
-        claw_rotate    = hwMap.get(Servo.class,          "Rotate");
-        claw_right     = hwMap.get(Servo.class,          "R");
-        claw_left      = hwMap.get(Servo.class,          "L");
+        slide_1        = hwMap.get(DcMotorEx.class,        "S1");
+        hook_1         = hwMap.get(DcMotorEx.class,        "H1");
+        hook_2         = hwMap.get(DcMotorEx.class,        "H2");
+        slide_2        = hwMap.get(DcMotorEx.class,        "S2");
+        slide_3        = hwMap.get(Servo.class,            "S3");
+        claw_2         = hwMap.get(Servo.class,            "C2");
+        rotate_2       = hwMap.get(Servo.class,            "R2");
+        rotate_1       = hwMap.get(Servo.class,            "R1");
+        claw_1         = hwMap.get(Servo.class,            "C1");
+        light_1        = hwMap.get(Servo.class,            "L1");
 
         front_left.setDirection(DcMotorSimple.Direction.REVERSE);
         back_left.setDirection(DcMotorSimple.Direction.REVERSE);
-        lifting_arm_2.setDirection(DcMotorSimple.Direction.REVERSE);
+        //lifting_arm_2.setDirection(DcMotorSimple.Direction.FORWARD);
+        slide_2.setDirection(DcMotorSimple.Direction.REVERSE);
+
 
         front_left .setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         front_right.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -82,13 +88,14 @@ public class HotBotsRobot2024 {
         back_left.setTargetPositionTolerance(20);
         back_right.setTargetPositionTolerance(20);
 
-        pixel_arm  .setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        lifting_arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        liner_actuator.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slide_1  .setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        hook_1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //lifting_arm_2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slide_2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        claw_rotate.setPosition(.8);
-        claw_right.setPosition(0);
-        claw_left.setPosition(1);
+        //extend.setPosition(.2);
+
+        //claw_left.setPosition(0.65);
     }
 
     // ====================
@@ -118,39 +125,53 @@ public class HotBotsRobot2024 {
         double h = GamePad1.left_stick_x;
         double p = GamePad1.right_stick_x / 2;
 
-        double fr = (-p + (v - h) * x);
-        double br = (-p + (v + h) * x);
-        double fl = ( p + (v + h) * x);
-        double bl = ( p + (v - h) * x);
+        double FR = (-p + (v - h) * x);
+        double BR = (-p + (v + h) * x);
+        double FL = ( p + (v + h) * x);
+        double BL = ( p + (v - h) * x);
 
-        fr = Range.clip(fr, -1, 1);
-        fl = Range.clip(fl, -1, 1);
-        br = Range.clip(br, -1, 1);
-        bl = Range.clip(bl, -1, 1);
+        FR = Range.clip(FR, -1, 1);
+        FL = Range.clip(FL, -1, 1);
+        BR = Range.clip(BR, -1, 1);
+        BL = Range.clip(BL, -1, 1);
 
-        front_left .setPower(fl);
-        back_left  .setPower(bl);
-        front_right.setPower(fr);
-        back_right .setPower(br);
+        front_left .setPower(FL);
+        back_left  .setPower(BL);
+        front_right.setPower(FR);
+        back_right .setPower(BR);
     }
 
-    public void movePixelArm(Integer value, double time_out) {
+    public void moveslide(Integer value, double time_out) {
         runtime.reset();
-        pixel_arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        pixel_arm.setTargetPosition(value);
-        pixel_arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        pixel_arm.setPower(.3);
-        while (motors_running(Collections.singletonList(pixel_arm)) && runtime.seconds() < time_out) {
-            telemetry.addData("PixelArm", pixel_arm.getCurrentPosition());
+        slide_1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slide_1.setTargetPosition(value);
+        slide_1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slide_1.setPower(.3);
+        while (motors_running(Collections.singletonList(slide_1)) && runtime.seconds() < time_out) {
+            telemetry.addData("PixelArm", slide_1.getCurrentPosition());
             telemetry.update();
             listen_for_drive_commands(0.7);
         }
-        pixel_arm.setPower(0);
+        slide_1.setPower(0);
     }
 
-    public void moveLiftingArm(Integer value, double time_out) {
+    public void moveLinerActuator(Integer value, double time_out) {
         runtime.reset();
-        List<DcMotor> lift_arms = Arrays.asList(lifting_arm, lifting_arm_2);
+        hook_2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        hook_2.setTargetPosition(value);
+        hook_2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        hook_2.setPower(.3);
+        while (motors_running(Collections.singletonList(hook_2)) && runtime.seconds() < time_out) {
+            telemetry.addData("liner_actuator", hook_2.getCurrentPosition());
+            telemetry.update();
+            listen_for_drive_commands(0.7);
+        }
+        hook_2.setPower(0);
+    }
+
+    public void moveworm_gear(Integer value, double time_out) {
+        runtime.reset();
+        List<DcMotor> lift_arms = Arrays.asList(hook_1);
         for (int i = 0; i < lift_arms.size(); i++) {
             DcMotor motor = lift_arms.get(i);
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -159,8 +180,8 @@ public class HotBotsRobot2024 {
             motor.setPower(1);
         }
         while (motors_running(lift_arms) && runtime.seconds() < time_out) {
-            telemetry.addData("LiftingArm", lifting_arm.getCurrentPosition());
-            telemetry.addData("LiftingArm2", lifting_arm_2.getCurrentPosition());
+            telemetry.addData("LiftingArm", hook_1.getCurrentPosition());
+            //telemetry.addData("LiftingArm2", lifting_arm_2.getCurrentPosition());
             telemetry.update();
             listen_for_drive_commands(0.7);
         }

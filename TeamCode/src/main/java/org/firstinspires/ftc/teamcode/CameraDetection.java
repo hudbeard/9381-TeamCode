@@ -50,9 +50,9 @@ import java.util.List;
 
 public class CameraDetection {
     private TfodProcessor tfod;
-    private AprilTagProcessor april;
+
     private VisionPortal pixelVisionPortal;
-    private VisionPortal aprilVisionPortal;
+
     private final ElapsedTime runtime = new ElapsedTime();
     Telemetry telemetry;
     @SuppressLint("SdCardPath")
@@ -60,16 +60,20 @@ public class CameraDetection {
         telemetry = t;
         if (red) {
 
-            final String[] LABELS = {"RED TSE"};
+            String[] LABELS = {"RED_PROP"};
             tfod = new TfodProcessor.Builder()
-                    .setModelFileName("/sdcard/FIRST/tflitemodels/RED_TSE.tflite")
+                    .setModelFileName("/sdcard/FIRST/tflitemodels/RED_TSE-2.tflite")
                     .setModelLabels(LABELS)
+                    .setIsModelTensorFlow2(true)
+                    .setIsModelQuantized(true)
+                    .setModelInputSize(300)
+                    .setModelAspectRatio(16.0 / 9.0)
                     .build();
         } else {
 
-            final String[] LABELS = {"Pixel"};
+            String[] LABELS = {"BLUE_PROP"};
             tfod = new TfodProcessor.Builder()
-                    //.setModelFileName("/sdcard/FIRST/tflitemodels/BLUE_TSE.tflite")
+                    .setModelFileName("/sdcard/FIRST/tflitemodels/BLUE_TSE-2.tflite")
                     .setModelLabels(LABELS)
                     .setIsModelTensorFlow2(true)
                     .setIsModelQuantized(true)
@@ -77,24 +81,20 @@ public class CameraDetection {
                     .setModelAspectRatio(16.0 / 9.0)
                     .build();
         }
-        april = new AprilTagProcessor.Builder()
-                .setDrawAxes(true)
-                .setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
-                .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
-                .build();
+
         VisionPortal.Builder pixel_builder = new VisionPortal.Builder();
-        VisionPortal.Builder april_builder = new VisionPortal.Builder();
+
 
         pixel_builder.setCamera(hwmap.get(WebcamName.class, "Cam 1"));
-        april_builder.setCamera(hwmap.get(WebcamName.class, "Cam 2"));
+
 
         pixel_builder.enableLiveView(false);
-        april_builder.enableLiveView(true);
+
         pixel_builder.addProcessor(tfod);
-        april_builder.addProcessor(april);
+
         pixelVisionPortal = pixel_builder.build();
-        aprilVisionPortal = april_builder.build();
-        tfod.setMinResultConfidence(0.2f);
+
+        tfod.setMinResultConfidence(0.7f);
         pixelVisionPortal.setProcessorEnabled(tfod, true);
     }
     public Integer detect() {
